@@ -1,0 +1,11 @@
+# Include your project-specific ignores in this file
+# Read about how to use .gitignore: https://help.github.com/articles/ignoring-files
+# Useful .gitignore templates: https://github.com/github/gitignore
+node_modules
+dist
+.cache
+node_modules/
+travel-backend/node_modules/
+travel-backend/travel.db
+travel-backend/travel.db-wal
+travel-backend/travel.db-shm

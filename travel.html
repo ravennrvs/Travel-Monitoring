@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SkyTravel Portal</title>
+  <style>
+    :root{--bg:#f4f6fb;--card:#fff;--ink:#1c2433;--muted:#6b7588;--line:#e3e8f0;--pri:#2457d6;--pri-d:#1b44ac;--ok:#128a4f;--warn:#b7791f;--err:#c0392b;--info:#2b6cb0}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+    .app{display:flex;min-height:100vh}
+    .sidebar{width:240px;background:#12203f;color:#dfe6f7;padding:20px 16px;flex-shrink:0}
+    .brand{font-size:20px;font-weight:700;color:#fff;margin-bottom:22px}
+    .sidebar label{color:#9fb0d6;font-size:12px}
+    .sidebar select{width:100%;margin:6px 0 18px;padding:8px;border-radius:8px;border:0;background:#1d2f5c;color:#fff}
+    .menu button{display:block;width:100%;text-align:left;background:none;border:0;color:#cbd6f0;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:14px;margin-bottom:2px}
+    .menu button:hover{background:#1d2f5c}
+    .menu button.active{background:var(--pri);color:#fff}
+    main{flex:1;padding:28px 32px;max-width:1100px}
+    h1{margin:0 0 4px;font-size:24px}
+    .sub{color:var(--muted);margin:0 0 20px}
+    h3{margin:18px 0 8px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:12px}
+    label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:600}
+    input,select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px;background:#fff;color:var(--ink)}
+    input:focus,select:focus{outline:2px solid #b9ccff;border-color:var(--pri)}
+    .btn{background:var(--pri);color:#fff;border:0;padding:9px 16px;border-radius:8px;cursor:pointer;font-weight:600;font-size:14px}
+    .btn:hover{background:var(--pri-d)}
+    .btn.sm{padding:6px 11px;font-size:13px}
+    .btn.ghost{background:#eef2fb;color:var(--pri)}
+    .btn.danger{background:#fdeceb;color:var(--err)}
+    .btn.ok{background:#e5f6ed;color:var(--ok)}
+    .btn:disabled{opacity:.45;cursor:not-allowed}
+    .row{display:flex;gap:10px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+    .chip input{display:none}
+    .chip span{display:inline-block;padding:7px 14px;border:1px solid var(--line);border-radius:999px;cursor:pointer;background:#fff}
+    .chip input:checked+span{background:var(--pri);color:#fff;border-color:var(--pri)}
+    table{width:100%;border-collapse:collapse}
+    th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+    th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+    .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600}
+    .b-Confirmed,.b-ok{background:#e5f6ed;color:var(--ok)}
+    .b-Booked{background:#e6f0fb;color:var(--info)}
+    .b-Waiting{background:#fdf3de;color:var(--warn)}
+    .b-Cancelled,.b-gray{background:#eceff4;color:#5a6577}
+    .b-err{background:#fdeceb;color:var(--err)}
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+    .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}
+    .stat b{font-size:22px;display:block}
+    .stat span{color:var(--muted);font-size:12px}
+    .empty{padding:26px;text-align:center;color:var(--muted)}
+    .muted{color:var(--muted)}
+    .fl{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 0;border-bottom:1px dashed var(--line)}
+    .fl:last-child{border:0}
+    .total{font-weight:700;text-align:right;margin:10px 0;font-size:16px}
+    .bar{height:8px;background:#e8edf8;border-radius:6px;min-width:90px}
+    .bar i{display:block;height:100%;background:var(--pri);border-radius:6px}
+    .bar.low i{background:var(--ok)}
+    .alert{padding:12px 14px;border-radius:10px;margin:12px 0}
+    .alert.err{background:#fdeceb;color:var(--err);border:1px solid #f4c7c2}
+    .alert.ok{background:#e5f6ed;color:var(--ok);border:1px solid #bfe5cf}
+    .alert.warn{background:#fdf3de;color:var(--warn);border:1px solid #f1deb2}
+    .modal{position:fixed;inset:0;background:rgba(15,23,42,.5);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+    .modal.hidden{display:none}
+    .box{background:#fff;border-radius:14px;padding:22px;width:100%;max-width:560px;max-height:90vh;overflow:auto}
+    .box h2{margin:0 0 12px}
+    #toast{position:fixed;right:20px;bottom:20px;display:flex;flex-direction:column;gap:8px;z-index:99}
+    .t{padding:12px 16px;border-radius:10px;color:#fff;background:#1c2433;box-shadow:0 6px 20px rgba(0,0,0,.2);max-width:360px}
+    .t.err{background:var(--err)}.t.ok{background:var(--ok)}
+    .tk{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:8px;background:#fafbff}
+    .tablewrap{overflow-x:auto}
+    @media(max-width:800px){.app{flex-direction:column}.sidebar{width:100%}main{padding:18px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">✈ SkyTravel</div>
+    <label for="role">Masuk sebagai</label>
+    <select id="role" onchange="setRole(this.value)">
+      <option value="user">Pengguna</option>
+      <option value="member">Member Frequent Traveller</option>
+      <option value="manager">Manajer Travel</option>
+    </select>
+    <nav class="menu" id="menu"></nav>
+  </aside>
+  <main id="main"></main>
+</div>
+<div id="modal" class="modal hidden"><div class="box" id="box"></div></div>
+<div id="toast"></div>
+
+<script>
+  /* ================= DATA DUMMY ================= */
+  const CITIES=['Jakarta','Surabaya','Malang','Denpasar','Yogyakarta','Medan'];
+  const AIRLINES=[{n:'Garuda Indonesia',f:1.35},{n:'Batik Air',f:1.1},{n:'Citilink',f:0.95},{n:'Lion Air',f:0.85}];
+  const TIMES=['06:00','09:30','13:15','17:45','20:30'];
+  const START='2026-11-18', DAYS=14;
+  const MONTHS=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const $=id=>document.getElementById(id);
+  const pad=n=>String(n).padStart(2,'0');
+  const fmt=n=>'Rp '+n.toLocaleString('id-ID');
+  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function parse(iso){const [y,m,d]=iso.split('-').map(Number);return new Date(y,m-1,d)}
+  function toISO(dt){return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`}
+  function addDays(iso,n){const d=parse(iso);d.setDate(d.getDate()+n);return toISO(d)}
+  function fmtDate(iso){const d=parse(iso);return `${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)} ${d.getFullYear()}`}
+  function addMin(t,m){let [h,mi]=t.split(':').map(Number);let tot=h*60+mi+m;return pad(Math.floor(tot/60)%24)+':'+pad(tot%60)}
+
+  const FLIGHTS=[];let _id=1;
+  CITIES.forEach((a,i)=>CITIES.forEach((b,j)=>{
+    if(a===b)return;
+    const base=550000+((i*7+j*11)%9)*90000;
+    for(let d=0;d<DAYS;d++){
+      AIRLINES.forEach((al,k)=>{
+        [0,1].forEach(s=>{
+          const jam=TIMES[(k*2+s+d)%TIMES.length];
+          const adj=jam<'08:00'?-0.05:(jam>'17:00'?0.08:0);
+          const harga=Math.round(base*al.f*(1+(d%5)*0.03+adj)/1000)*1000;
+          FLIGHTS.push({id:_id++,asal:a,tujuan:b,tgl:addDays(START,d),jam,tiba:addMin(jam,80+((i+j)%4)*20),maskapai:al.n,harga});
+        });
+      });
+    }
+  }));
+  const fl=id=>FLIGHTS.find(f=>f.id===id);
+
+  const VIS=[
+    {nama:'Budi Santoso',email:'budi@email.com',nik:'3507010101900001'},
+    {nama:'Siti Aminah',email:'siti@email.com',nik:'3507020202920002'},
+    {nama:'Rudi Hartono',email:'rudi@email.com',nik:'3507030303850003'}
+  ];
+
+  const S={
+    role:'user',view:'',visitor:0,
+    profile:{nama:'Budi Santoso',nik:'',lahir:'',email:'budi@email.com',telp:''},
+    q:{asal:'Jakarta',tujuan:['Denpasar'],tgl:START},
+    c:{asal:'Jakarta',tuj:'Denpasar',tgl:START,jam:'all',urut:'harga'},
+    mq:{asal:'Jakarta',tgl:START,gap:1,tujuan:[]},
+    stFilter:'Semua',
+    bookings:[]
+  };
+  function seedBooking(kode,owner,pemesan,fid,status,validasi){
+    const f=fl(fid);
+    S.bookings.push({kode,owner,pemesan,penumpang:{nama:owner,nik:'-',email:owner.split(' ')[0].toLowerCase()+'@email.com'},
+      flights:[fid],status,total:f.harga,tickets:[{no:'TK-'+kode.slice(2)+'-1',fid,validasi:!!validasi}]});
+  }
+  seedBooking('BK7A2F91','Budi Santoso','Pengguna',120,'Confirmed',true);
+  seedBooking('BK3C88D2','Siti Aminah','Manajer Travel',480,'Booked');
+  seedBooking('BK9X10Q7','Rudi Hartono','Manajer Travel',905,'Waiting for the Payment');
+  seedBooking('BK5M44L0','Budi Santoso','Pengguna',1500,'Waiting for the Payment');
+
+  /* ================= HELPERS UI ================= */
+  function toast(msg,type=''){
+    const el=document.createElement('div');el.className='t '+type;el.textContent=msg;
+    $('toast').appendChild(el);setTimeout(()=>el.remove(),3800);
+  }
+  function modal(html){$('box').innerHTML=html;$('modal').classList.remove('hidden')}
+  function closeModal(){$('modal').classList.add('hidden')}
+  $('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+  const opts=(arr,sel)=>arr.map(x=>`<option ${x===sel?'selected':''}>${x}</option>`).join('');
+  const stClass=s=>s.split(' ')[0];
+  const badge=s=>`<span class="badge b-${stClass(s)}">${s}</span>`;
+  function flightLine(f){
+    return `<div class="fl"><b>${f.asal} → ${f.tujuan}</b><span>${fmtDate(f.tgl)} · ${f.jam}–${f.tiba}</span><span>${f.maskapai}</span><b>${fmt(f.harga)}</b></div>`;
+  }
+  const profileComplete=()=>['nama','nik','lahir','email','telp'].every(k=>String(S.profile[k]||'').trim());
+
+  /* ================= ROLE & MENU ================= */
+  const MENUS={
+    user:[['cari','Cari Penerbangan'],['tiket','Tiket Saya']],
+    member:[['cari','Cari Penerbangan'],['bandingkan','Bandingkan Penerbangan'],['multi','Multi-Destinasi'],['tiket','Tiket Saya'],['profil','Profil & Validasi']],
+    manager:[['status','Status Booking'],['pesan','Pesan untuk Pengunjung'],['otorisasi','Otorisasi Tiket']]
+  };
+  function setRole(r){S.role=r;go(MENUS[r][0][0])}
+  function go(v){
+    S.view=v;
+    $('menu').innerHTML=MENUS[S.role].map(([k,l])=>`<button class="${k===v?'active':''}" onclick="go('${k}')">${l}</button>`).join('');
+    const V={cari:()=>viewSearch(false),pesan:()=>viewSearch(true),tiket:viewTiket,bandingkan:viewCompare,multi:viewMulti,
+      profil:viewProfil,status:viewStatus,otorisasi:viewAuth};
+    $('main').innerHTML=V[v]();
+    window.scrollTo(0,0);
+  }
+
+  /* ================= PENCARIAN (US02, US03, US08) ================= */
+  function viewSearch(mgr){
+    const q=S.q;
+    return `<h1>${mgr?'Pesan Tiket untuk Pengunjung':'Cari Jadwal Penerbangan'}</h1>
+  <p class="sub">${mgr?'Cari tiket lalu pesan menggunakan data pengunjung.':'Pilih satu atau beberapa tujuan untuk melihat jadwal, maskapai, dan harga tiket.'}</p>
+  ${mgr?`<div class="card"><label>Pengunjung</label>
+    <select onchange="S.visitor=+this.value">${VIS.map((v,i)=>`<option value="${i}" ${i===S.visitor?'selected':''}>${v.nama} (${v.email})</option>`).join('')}</select></div>`:''}
+  <div class="card">
+    <div class="grid">
+      <div><label>Kota asal</label><select id="q-asal">${opts(CITIES,q.asal)}</select></div>
+      <div><label>Tanggal berangkat</label><input type="date" id="q-tgl" value="${q.tgl}" min="${START}" max="${addDays(START,DAYS-1)}"></div>
+    </div>
+    <label>Tujuan (boleh lebih dari satu)</label>
+    <div class="chips" id="q-chips">${CITIES.map(c=>`<label class="chip"><input type="checkbox" value="${c}" ${q.tujuan.includes(c)?'checked':''}><span>${c}</span></label>`).join('')}</div>
+    <button class="btn" onclick="doSearch()">Cari Penerbangan</button>
+  </div>
+  <div id="res"></div>`;
+  }
+  function doSearch(){
+    const asal=$('q-asal').value,tgl=$('q-tgl').value;
+    const tujuan=[...document.querySelectorAll('#q-chips input:checked')].map(i=>i.value).filter(c=>c!==asal);
+    S.q={asal,tgl,tujuan:[...tujuan]};
+    if(!tgl||!tujuan.length){toast('Pilih tanggal dan minimal satu tujuan (selain kota asal).','err');return}
+    $('res').innerHTML=tujuan.map(t=>{
+      const list=FLIGHTS.filter(f=>f.asal===asal&&f.tujuan===t&&f.tgl===tgl).sort((a,b)=>a.jam.localeCompare(b.jam));
+      return `<div class="card"><h3 style="margin-top:0">${asal} → ${t} <span class="muted" style="font-weight:400">· ${fmtDate(tgl)} · ${list.length} penerbangan</span></h3>`+
+        (list.length?`<div class="tablewrap"><table><tr><th>Jadwal</th><th>Maskapai</th><th>Harga</th><th></th></tr>
+      ${list.map(f=>`<tr><td><b>${f.jam}</b> – ${f.tiba}</td><td>${f.maskapai}</td><td>${fmt(f.harga)}</td>
+      <td style="text-align:right"><button class="btn sm" onclick="openBook([${f.id}])">Pesan</button></td></tr>`).join('')}</table></div>`
+          :`<div class="empty">Tidak ada penerbangan pada tanggal ini.</div>`)+`</div>`;
+    }).join('');
+  }
+
+  /* ================= PEMESANAN ================= */
+  function openBook(ids){
+    const fs=ids.map(fl),mgr=S.role==='manager';
+    const p=mgr?VIS[S.visitor]:S.profile;
+    const total=fs.reduce((s,f)=>s+f.harga,0);
+    modal(`<h2>Konfirmasi Pemesanan</h2>${fs.map(flightLine).join('')}
+    <div class="total">Total: ${fmt(total)}</div>
+    ${mgr?`<div class="alert warn">Pesanan atas nama pengunjung: <b>${esc(p.nama)}</b></div>`:''}
+    <div class="grid"><div><label>Nama penumpang</label><input id="b-nama" value="${esc(p.nama)}"></div>
+    <div><label>No. identitas</label><input id="b-nik" value="${esc(p.nik||'')}"></div></div>
+    <label>Email (e-tiket dikirim ke sini)</label><input id="b-email" type="email" value="${esc(p.email)}">
+    <div class="row"><button class="btn ghost" onclick="closeModal()">Batal</button>
+    <button class="btn" onclick="confirmBook([${ids}])">Pesan Sekarang</button></div>`);
+  }
+  function confirmBook(ids){
+    const nama=$('b-nama').value.trim(),nik=$('b-nik').value.trim(),email=$('b-email').value.trim();
+    if(!nama||!email){toast('Nama dan email wajib diisi.','err');return}
+    const mgr=S.role==='manager';
+    const kode='BK'+Math.random().toString(36).slice(2,8).toUpperCase();
+    const fs=ids.map(fl);
+    const owner=mgr?VIS[S.visitor].nama:S.profile.nama;
+    S.bookings.push({kode,owner,pemesan:mgr?'Manajer Travel':(S.role==='member'?'Member':'Pengguna'),
+      penumpang:{nama,nik,email},flights:ids,status:'Waiting for the Payment',total:fs.reduce((s,f)=>s+f.harga,0),
+      tickets:fs.map((f,i)=>({no:`TK-${kode.slice(2)}-${i+1}`,fid:f.id,validasi:false}))});
+    closeModal();
+    if(mgr){toast(`Pesanan ${kode} dibuat atas nama ${owner}. E-tiket dikirim ke ${email}.`,'ok')}
+    else{toast(`Booking ${kode} dibuat. Silakan lanjutkan pembayaran.`,'ok');go('tiket')}
+  }
+
+  /* ================= TIKET SAYA (US02c, US05b) ================= */
+  function viewTiket(){
+    const mine=S.bookings.filter(b=>b.owner===S.profile.nama).slice().reverse();
+    const isMember=S.role==='member';
+    return `<h1>Tiket Saya</h1><p class="sub">Lihat, bayar, dan batalkan pesanan tiket pesawat.</p>`+
+      (mine.length?mine.map(b=>`<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <div><b>Kode Booking: ${b.kode}</b><div class="muted">Dipesan oleh: ${b.pemesan}</div></div>${badge(b.status)}</div>
+    ${b.tickets.map(t=>`<div class="tk">${flightLine(fl(t.fid))}
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px">
+      <span class="muted">No. Tiket: ${t.no}</span>
+      ${isMember&&b.status!=='Cancelled'?`<span>${t.validasi?'<span class="badge b-ok">Tervalidasi</span>':
+        `<span class="badge b-gray">Belum divalidasi</span> <button class="btn sm ghost" onclick="validateTicket('${b.kode}','${t.no}')">Validasi Tiket</button>`}</span>`:''}
+      </div></div>`).join('')}
+    <div class="total">Total: ${fmt(b.total)}</div>
+    <div class="row" style="margin-top:0">
+      ${b.status==='Waiting for the Payment'?`<button class="btn ok" onclick="payBooking('${b.kode}')">Bayar Sekarang</button>`:''}
+      ${b.status!=='Cancelled'?`<button class="btn danger" onclick="cancelBooking('${b.kode}')">Batalkan Tiket</button>`:''}
+    </div></div>`).join(''):`<div class="card empty">Belum ada pesanan tiket.</div>`);
+  }
+  function payBooking(k){const b=S.bookings.find(x=>x.kode===k);b.status='Booked';toast('Pembayaran berhasil. Status: Booked. E-tiket dikirim ke '+b.penumpang.email,'ok');go('tiket')}
+  function cancelBooking(k){
+    if(!confirm('Batalkan pesanan '+k+'?'))return;
+    S.bookings.find(x=>x.kode===k).status='Cancelled';toast('Pesanan '+k+' dibatalkan.','ok');go('tiket');
+  }
+  function validateTicket(k,no){
+    if(!profileComplete()){toast('Data profil tidak lengkap. Validasi tiket ditolak sampai profil dilengkapi.','err');return}
+    S.bookings.find(x=>x.kode===k).tickets.find(t=>t.no===no).validasi=true;
+    toast('Tiket '+no+' berhasil divalidasi.','ok');go('tiket');
+  }
+
+  /* ================= PROFIL (US05) ================= */
+  function viewProfil(){
+    const p=S.profile;
+    return `<h1>Profil & Validasi Tiket</h1><p class="sub">Lengkapi data personal agar tiket dapat divalidasi.</p>
+  <div class="card">
+    <div style="margin-bottom:12px">Status profil: ${profileComplete()?'<span class="badge b-ok">Lengkap</span>':'<span class="badge b-err">Belum lengkap</span>'}</div>
+    <div class="grid">
+      <div><label>Nama lengkap</label><input id="p-nama" value="${esc(p.nama)}"></div>
+      <div><label>Nomor identitas (NIK/Paspor)</label><input id="p-nik" value="${esc(p.nik)}"></div>
+      <div><label>Tanggal lahir</label><input id="p-lahir" type="date" value="${p.lahir}"></div>
+      <div><label>Email</label><input id="p-email" type="email" value="${esc(p.email)}"></div>
+      <div><label>No. telepon</label><input id="p-telp" value="${esc(p.telp)}"></div>
+    </div>
+    <button class="btn" onclick="saveProfil()">Simpan Profil</button>
+  </div>
+  ${profileComplete()?'':`<div class="alert err">Data profil tidak lengkap. Validasi tiket akan ditolak hingga semua kolom terisi.</div>`}`;
+  }
+  function saveProfil(){
+    const old=S.profile.nama;
+    S.profile={nama:$('p-nama').value.trim(),nik:$('p-nik').value.trim(),lahir:$('p-lahir').value,email:$('p-email').value.trim(),telp:$('p-telp').value.trim()};
+    if(old!==S.profile.nama)S.bookings.forEach(b=>{if(b.owner===old)b.owner=S.profile.nama});
+    toast('Profil berhasil disimpan.','ok');go('profil');
+  }
+
+  /* ================= BANDINGKAN (US06) ================= */
+  const SLOTS={all:[0,24],pagi:[5,11],siang:[11,15],sore:[15,18],malam:[18,24]};
+  function viewCompare(){
+    const c=S.c;
+    return `<h1>Bandingkan Penerbangan</h1><p class="sub">Bandingkan penerbangan berdasarkan tujuan, tanggal, dan jam keberangkatan.</p>
+  <div class="card"><div class="grid">
+    <div><label>Kota asal</label><select id="c-asal">${opts(CITIES,c.asal)}</select></div>
+    <div><label>Tujuan</label><select id="c-tuj">${opts(CITIES,c.tuj)}</select></div>
+    <div><label>Tanggal</label><input type="date" id="c-tgl" value="${c.tgl}" min="${START}" max="${addDays(START,DAYS-1)}"></div>
+    <div><label>Jam keberangkatan</label><select id="c-jam">
+      ${[['all','Semua jam'],['pagi','Pagi (05–11)'],['siang','Siang (11–15)'],['sore','Sore (15–18)'],['malam','Malam (18–24)']].map(([v,l])=>`<option value="${v}" ${c.jam===v?'selected':''}>${l}</option>`).join('')}</select></div>
+    <div><label>Urutkan</label><select id="c-urut"><option value="harga" ${c.urut==='harga'?'selected':''}>Harga terendah</option><option value="jam" ${c.urut==='jam'?'selected':''}>Jam paling awal</option></select></div>
+  </div><button class="btn" onclick="doCompare()">Bandingkan</button></div><div id="res"></div>`;
+  }
+  function doCompare(){
+    const c={asal:$('c-asal').value,tuj:$('c-tuj').value,tgl:$('c-tgl').value,jam:$('c-jam').value,urut:$('c-urut').value};
+    S.c=c;
+    if(c.asal===c.tuj){toast('Kota asal dan tujuan tidak boleh sama.','err');return}
+    const [lo,hi]=SLOTS[c.jam];
+    const list=FLIGHTS.filter(f=>f.asal===c.asal&&f.tujuan===c.tuj&&f.tgl===c.tgl&&parseInt(f.jam)>=lo&&parseInt(f.jam)<hi);
+    list.sort(c.urut==='harga'?(a,b)=>a.harga-b.harga:(a,b)=>a.jam.localeCompare(b.jam));
+    if(!list.length){$('res').innerHTML=`<div class="card empty">Tidak ada penerbangan sesuai preferensi.</div>`;return}
+    const min=Math.min(...list.map(f=>f.harga)),max=Math.max(...list.map(f=>f.harga));
+    $('res').innerHTML=`<div class="stats">
+    <div class="stat"><b>${list.length}</b><span>Penerbangan tersedia</span></div>
+    <div class="stat"><b>${fmt(min)}</b><span>Harga termurah</span></div>
+    <div class="stat"><b>${fmt(max)}</b><span>Harga tertinggi</span></div>
+    <div class="stat"><b>${fmt(max-min)}</b><span>Selisih harga</span></div></div>
+  <div class="card tablewrap"><table><tr><th>Jadwal</th><th>Maskapai</th><th>Harga</th><th>Perbandingan</th><th></th></tr>
+  ${list.map(f=>`<tr><td><b>${f.jam}</b> – ${f.tiba}</td><td>${f.maskapai}</td>
+    <td>${fmt(f.harga)} ${f.harga===min?'<span class="badge b-ok">Termurah</span>':''}</td>
+    <td><div class="bar ${f.harga===min?'low':''}"><i style="width:${Math.round(f.harga/max*100)}%"></i></div></td>
+    <td style="text-align:right"><button class="btn sm" onclick="openBook([${f.id}])">Pesan</button></td></tr>`).join('')}</table></div>`;
+  }
+
+  /* ================= MULTI-DESTINASI (US04) ================= */
+  function viewMulti(){
+    const m=S.mq;
+    return `<h1>Penerbangan Multi-Destinasi</h1><p class="sub">Cari rute berantai berdasarkan tanggal, lokasi keberangkatan, dan tujuan. Klik tujuan sesuai urutan kunjungan.</p>
+  <div class="card">
+    <div class="grid">
+      <div><label>Lokasi keberangkatan</label><select id="m-asal">${opts(CITIES,m.asal)}</select></div>
+      <div><label>Tanggal mulai</label><input type="date" id="m-tgl" value="${m.tgl}" min="${START}" max="${addDays(START,DAYS-1)}"></div>
+      <div><label>Jeda antar penerbangan (hari)</label><select id="m-gap">${[0,1,2,3].map(n=>`<option ${n===m.gap?'selected':''}>${n}</option>`).join('')}</select></div>
+    </div>
+    <label>Tujuan (urutan klik = urutan kunjungan)</label>
+    <div class="chips">${CITIES.map(c=>`<label class="chip"><input type="checkbox" ${m.tujuan.includes(c)?'checked':''} onchange="toggleMulti('${c}',this.checked)"><span>${c}</span></label>`).join('')}</div>
+    <div class="muted" style="margin-bottom:12px">Rute: <b id="route">${routeText()}</b></div>
+    <button class="btn" onclick="doMulti()">Cari Multi-Destinasi</button>
+  </div><div id="res"></div>`;
+  }
+  const routeText=()=>[S.mq.asal,...S.mq.tujuan].join(' → ');
+  function toggleMulti(c,on){
+    const t=S.mq.tujuan;
+    if(on&&!t.includes(c))t.push(c);
+    if(!on)S.mq.tujuan=t.filter(x=>x!==c);
+    S.mq.asal=$('m-asal').value;$('route').textContent=routeText();
+  }
+  function doMulti(){
+    const asal=$('m-asal').value,tgl=$('m-tgl').value,gap=+$('m-gap').value;
+    S.mq.asal=asal;S.mq.tgl=tgl;S.mq.gap=gap;
+    const cities=[asal,...S.mq.tujuan];
+    if(S.mq.tujuan.length<2){toast('Pilih minimal 2 tujuan untuk perjalanan multi-destinasi.','err');return}
+    for(let i=1;i<cities.length;i++)if(cities[i]===cities[i-1]){toast('Kota yang berurutan tidak boleh sama.','err');return}
+    const legs=cities.slice(1).map((to,i)=>{
+      const from=cities[i],date=addDays(tgl,i*gap);
+      return {from,to,date,list:FLIGHTS.filter(f=>f.asal===from&&f.tujuan===to&&f.tgl===date)};
+    });
+    const strat=[
+      ['Termurah',l=>l.reduce((a,b)=>b.harga<a.harga?b:a)],
+      ['Paling pagi',l=>l.reduce((a,b)=>b.jam<a.jam?b:a)],
+      ['Paling malam',l=>l.reduce((a,b)=>b.jam>a.jam?b:a)]
+    ];
+    const totalCount=legs.reduce((s,l)=>s+l.list.length,0);
+    const avail=legs.every(l=>l.list.length);
+    let html=`<div class="card"><h3 style="margin-top:0">Ketersediaan per segmen</h3>
+    ${legs.map(l=>`<div class="fl"><b>${l.from} → ${l.to}</b><span>${fmtDate(l.date)}</span><span>${l.list.length} penerbangan</span>
+    <span class="muted">${l.list.length?fmt(Math.min(...l.list.map(f=>f.harga)))+' – '+fmt(Math.max(...l.list.map(f=>f.harga))):'-'}</span></div>`).join('')}
+    <div class="total">Total penerbangan tersedia: ${totalCount}</div></div>`;
+    if(!avail){html+=`<div class="alert err">Ada segmen tanpa penerbangan pada tanggalnya. Ubah tanggal atau jeda hari.</div>`}
+    else{
+      const rows=strat.map(([n,fn])=>{const picks=legs.map(l=>fn(l.list));return {n,picks,total:picks.reduce((s,f)=>s+f.harga,0)}});
+      const min=Math.min(...rows.map(r=>r.total));
+      html+=`<div class="card tablewrap"><h3 style="margin-top:0">Perbandingan opsi paket</h3><table>
+      <tr><th>Opsi</th><th>Rincian penerbangan</th><th>Jumlah penerbangan</th><th>Total harga</th><th></th></tr>
+      ${rows.map(r=>`<tr><td><b>${r.n}</b></td>
+      <td>${r.picks.map(f=>`<div>${f.asal} → ${f.tujuan} · ${f.jam} · ${f.maskapai}</div>`).join('')}</td>
+      <td>${r.picks.length} penerbangan</td>
+      <td><b>${fmt(r.total)}</b> ${r.total===min?'<span class="badge b-ok">Hemat</span>':''}</td>
+      <td style="text-align:right"><button class="btn sm" onclick="openBook([${r.picks.map(f=>f.id)}])">Pesan Paket</button></td></tr>`).join('')}</table></div>`;
+    }
+    $('res').innerHTML=html;
+  }
+
+  /* ================= STATUS BOOKING (US07) ================= */
+  function viewStatus(){
+    const filters=['Semua','Confirmed','Booked','Waiting for the Payment','Cancelled'];
+    const f=S.stFilter;
+    const list=S.bookings.filter(b=>f==='Semua'||b.status===f);
+    const cnt=s=>S.bookings.filter(b=>b.status===s).length;
+    return `<h1>Status Booking</h1><p class="sub">Pantau seluruh booking dan filter berdasarkan status.</p>
+  <div class="stats">
+    <div class="stat"><b>${S.bookings.length}</b><span>Semua booking</span></div>
+    <div class="stat"><b>${cnt('Confirmed')}</b><span>Confirmed</span></div>
+    <div class="stat"><b>${cnt('Booked')}</b><span>Booked</span></div>
+    <div class="stat"><b>${cnt('Waiting for the Payment')}</b><span>Waiting for the Payment</span></div></div>
+  <div class="card"><label>Filter status</label>
+    <select onchange="S.stFilter=this.value;go('status')" style="max-width:280px">${filters.map(x=>`<option ${x===f?'selected':''}>${x}</option>`).join('')}</select></div>
+  <div class="card tablewrap">${list.length?`<table><tr><th>Kode</th><th>Atas nama</th><th>Rute</th><th>Pemesan</th><th>Total</th><th>Status</th></tr>
+  ${list.slice().reverse().map(b=>`<tr><td><b>${b.kode}</b></td><td>${esc(b.owner)}</td>
+    <td>${b.flights.map(id=>{const x=fl(id);return x.asal+' → '+x.tujuan+' ('+fmtDate(x.tgl)+')'}).join('<br>')}</td>
+    <td>${b.pemesan}</td><td>${fmt(b.total)}</td><td>${badge(b.status)}</td></tr>`).join('')}</table>`:`<div class="empty">Tidak ada booking dengan status ini.</div>`}</div>`;
+  }
+
+  /* ================= OTORISASI (US09) ================= */
+  function viewAuth(){
+    return `<h1>Otorisasi Tiket</h1><p class="sub">Masukkan kode booking reference untuk memverifikasi dan mengotorisasi tiket.</p>
+  <div class="card"><label>Kode booking reference</label>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><input id="a-kode" placeholder="Contoh: BK7A2F91" style="max-width:300px;text-transform:uppercase">
+    <button class="btn" onclick="doAuth()">Periksa</button></div>
+    <div class="muted" style="margin-top:8px;font-size:12px">Kode contoh (prototype): ${S.bookings.slice(0,4).map(b=>b.kode).join(', ')}</div></div>
+  <div id="res"></div>`;
+  }
+  function doAuth(){
+    const k=$('a-kode').value.trim().toUpperCase();
+    const b=S.bookings.find(x=>x.kode===k);
+    if(!b){
+      $('res').innerHTML=`<div class="alert err"><b>Kode booking reference tidak sesuai.</b> Silakan ulangi input kode booking reference.</div>`;
+      $('a-kode').value='';$('a-kode').focus();return;
+    }
+    let info='';
+    if(b.status==='Waiting for the Payment')info='<div class="alert warn">Booking masih menunggu pembayaran, belum dapat diotorisasi.</div>';
+    if(b.status==='Confirmed')info='<div class="alert ok">Tiket sudah diotorisasi (Confirmed).</div>';
+    if(b.status==='Cancelled')info='<div class="alert err">Booking telah dibatalkan.</div>';
+    $('res').innerHTML=`<div class="card">
+    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px"><div><b>${b.kode}</b><div class="muted">Atas nama ${esc(b.owner)} · dipesan oleh ${b.pemesan}</div></div>${badge(b.status)}</div>
+    ${b.flights.map(id=>flightLine(fl(id))).join('')}<div class="total">Total: ${fmt(b.total)}</div>${info}
+    <div class="row" style="margin-top:0"><button class="btn" ${b.status==='Booked'?'':'disabled'} onclick="authorize('${b.kode}')">Otorisasi Tiket</button></div></div>`;
+  }
+  function authorize(k){S.bookings.find(x=>x.kode===k).status='Confirmed';toast('Tiket '+k+' berhasil diotorisasi.','ok');$('a-kode').value=k;doAuth()}
+
+  /* ================= INIT ================= */
+  setRole('user');
+</script>
+</body>
+</html>
